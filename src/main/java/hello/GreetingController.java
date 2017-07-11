@@ -16,18 +16,30 @@ import edu.stanford.nlp.trees.tregex.TregexPattern;
 @RestController
 public class GreetingController {
 
-    private static final String template = "Parse Tree: %s!";
+    //private static final String template = "Parse Tree: %s!";
     private final AtomicLong counter = new AtomicLong();
+    
+    private String intent;
+    private String full_name;
+    private String first_name;
+    private String last_name;
+    private String application_name;
 
     @RequestMapping("/greeting")
-    public Greeting greeting(@RequestParam(value="name", defaultValue="World") String name) {
-    	
+    public Greeting greeting(@RequestParam(value="text", defaultValue="call Saumya Dixit") String text) {
+    	parser(text);
         return new Greeting(counter.incrementAndGet(),
-                            String.format(template, parser(name)));
+                            text, intent, full_name, first_name , last_name, application_name);
     }
     
-    public String parser(String text)
+    public void parser(String text)
     {
+    	first_name=null;
+    	full_name=null;
+    	last_name=null;
+    	intent=null;
+    	application_name = null;
+    	
     	String grammar = "edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";
         String[] options = { "-maxLength", "80", "-retainTmpSubcategories" };
         LexicalizedParser lp = LexicalizedParser.loadModel(grammar, options);
@@ -40,96 +52,43 @@ public class GreetingController {
         verbs.add("open");
         verbs.add("find");
         
+        String verb = check_verbs(text, lp, verbs);
+        ArrayList<String> object = check_nouns(text, lp, noun_discards);
+        switch(verb)
+        {
+        case "call":
+        	intent="call";
+        	first_name ="";
+        	for(int i = 0; i<object.size()-1;i++)
+        		first_name = first_name + " "+ object.get(i);
+        	first_name = first_name.trim();
+        	last_name = object.get(object.size()-1);
+        	full_name = last_name + ", "+first_name;
+        	break;
+        case "open":
+        	intent="open";
+        	application_name="";
+        	for(int i = 0; i<object.size();i++)
+        		application_name = application_name + " "+ object.get(i);
+        	application_name = application_name.trim();
+        	break;
+        case "find":
+        	intent="find";
+        	for(int i = 0; i<object.size()-1;i++)
+        		first_name = first_name + " "+ object.get(i);
+        	first_name = first_name.trim();
+        	last_name = object.get(object.size()-1);
+        	full_name = last_name + ", "+first_name;
+        	break;
+        }
+        
     	
-        //Call Sentences Test
-    	text = "call Saumya Dixit";
-    	//print_verbs(text,lp,verbs);
-    	print_nouns(text,lp,noun_discards);
         
-        text = "Please call Saumya Dixit";
-        print_nouns(text,lp,noun_discards);
-        //print_verbs(text,lp,verbs);
-
-        
-        text = "Can you please call Saumya Dixit?";
-        print_nouns(text,lp,noun_discards);
-        //print_verbs(text,lp,verbs);
-        
-        text = "Place a call to Saumya Dixit";
-        print_nouns(text,lp,noun_discards);
-        //print_verbs(text,lp,verbs);
-        
-        text = "Make a call to Saumya Dixit";
-        print_nouns(text,lp,noun_discards);
-        //print_verbs(text,lp,verbs);
-        
-        text = "Please make a call to Saumya Dixit";
-        print_nouns(text,lp,noun_discards);
-        //print_verbs(text,lp,verbs);
-       
-        text = "Please make a call to saumya";
-        print_nouns(text,lp,noun_discards);
-        //print_verbs(text,lp,verbs);
-        
-        
-        //Open Sentences Test
-        
-        
-        text = "please open Internet Explorer";
-        //print_verbs(text,lp,verbs);
-        print_nouns(text,lp,noun_discards);
-        
-        text = "open Notepad";
-        //print_verbs(text,lp,verbs);
-        print_nouns(text,lp,noun_discards);
-        
-        text = "can you open Notepad";
-        //print_verbs(text,lp,verbs);
-        print_nouns(text,lp,noun_discards);
-        
-        text = "open firefox";
-        //print_verbs(text,lp,verbs);
-        print_nouns(text,lp,noun_discards);
-        
-        text = "can you please open Firefox?";
-        //print_verbs(text,lp,verbs);
-        print_nouns(text,lp,noun_discards);
-        
-        text = "can you please open Google Chrome for me?";
-        //print_verbs(text,lp,verbs);
-        print_nouns(text,lp,noun_discards);
-        
-        
-        text = "open Microsoft Outlook please";
-        //print_verbs(text,lp,verbs);
-        print_nouns(text,lp,noun_discards);
-        
-        
-        //Find Sentences Test
-        
-        
-        text = "Please find Saumya Dixit";
-        print_verbs(text,lp,verbs);
-        print_nouns(text,lp,noun_discards);
-        
-        text = "find Saumya Dixit";
-        print_verbs(text,lp,verbs);
-        print_nouns(text,lp,noun_discards);
-        
-        text = "Can you please find Saumya Dixit?";
-        print_verbs(text,lp,verbs);
-        print_nouns(text,lp,noun_discards);
-        
-        text = "Can you please find Saumya Dixit in my contacts?";
-        print_verbs(text,lp,verbs);
-        print_nouns(text,lp,noun_discards);
-        
-        return("Testing");
     }
     
-    public void print_verbs(String text, LexicalizedParser lp, List<String> verbs)
+    public String check_verbs(String text, LexicalizedParser lp, List<String> verbs)
     {
-    	
+    	String verb="";
     	System.out.println("\n\nPrinting Verbs .. !");
     	String regex_pattern_noun = "(@ADJP << @JJ & > @VP) | (@NP < @JJ) | (@VP < @VB) | (@VP < @VBP) | (@PRT << @RP & > @VP) | (@NP < @NN  & >> @VP) | (@NN $, @DT & >> @VP) ";
     	
@@ -144,14 +103,20 @@ public class GreetingController {
           Tree match = vpmatcher.getMatch();
           String str = match.yield().get(0).value();
           if(verbs.contains(str))
+          {
         	  System.out.println(str);
+        	  verb = str;
+          }
         }
+        
+        return verb;
         
     }
     
     
-    public void print_nouns(String text, LexicalizedParser lp, List<String> discards)
+    public ArrayList<String> check_nouns(String text, LexicalizedParser lp, List<String> discards)
     {
+    	ArrayList<String> object= new ArrayList<String>();
     	
     	System.out.println("\nPrinting Proper Nouns .. !");
     	String regex_pattern_noun = "(NNP > NP) | (NN > NP)";
@@ -165,8 +130,11 @@ public class GreetingController {
           Tree match = vpmatcher.getMatch();
           String str = match.yield().get(0).value();
           if(!discards.contains(str))
-        	  System.out.println(match.yield());
+          {
+        	  System.out.println(str);
+        	  object.add(str);
+          }
         }
-        
+        return object;
     }
 }

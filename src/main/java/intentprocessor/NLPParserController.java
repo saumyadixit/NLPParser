@@ -37,7 +37,7 @@ public class NLPParserController {
     	first_name=null;
     	full_name=null;
     	last_name=null;
-    	intent=null;
+    	intent="unknown";
     	application_name = null;
     	
     	String grammar = "edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";
@@ -59,11 +59,22 @@ public class NLPParserController {
         case "call":
         	intent="call";
         	first_name ="";
-        	for(int i = 0; i<object.size()-1;i++)
-        		first_name = first_name + " "+ object.get(i);
-        	first_name = first_name.trim();
-        	last_name = object.get(object.size()-1);
-        	full_name = last_name + ", "+first_name;
+        	if(object.size()==1)
+        	{
+        		first_name = object.get(object.size()-1);
+	        	last_name = "";
+	        	full_name = first_name;
+	        	
+        	}
+        	else
+        	{
+        		for(int i = 0; i<object.size()-1;i++)
+	        		first_name = first_name + " "+ object.get(i);
+	        	first_name = first_name.trim();
+	        	last_name = object.get(object.size()-1);
+	        	full_name = last_name + ", "+first_name;
+        	}
+        		
         	break;
         case "open":
         	intent="open";
@@ -74,11 +85,22 @@ public class NLPParserController {
         	break;
         case "find":
         	intent="find";
-        	for(int i = 0; i<object.size()-1;i++)
-        		first_name = first_name + " "+ object.get(i);
-        	first_name = first_name.trim();
-        	last_name = object.get(object.size()-1);
-        	full_name = last_name + ", "+first_name;
+        	first_name ="";
+        	if(object.size()==1)
+        	{
+        		first_name = object.get(object.size()-1);
+	        	last_name = "";
+	        	full_name = first_name;
+	        	
+        	}
+        	else
+        	{
+        		for(int i = 0; i<object.size()-1;i++)
+	        		first_name = first_name + " "+ object.get(i);
+	        	first_name = first_name.trim();
+	        	last_name = object.get(object.size()-1);
+	        	full_name = last_name + ", "+first_name;
+        	}
         	break;
         case "":
         	if(object.size()>0)

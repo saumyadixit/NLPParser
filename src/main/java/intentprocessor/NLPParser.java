@@ -1,6 +1,6 @@
-package hello;
+package intentprocessor;
 
-public class Greeting {
+public class NLPParser {
 
     private final long id;
     
@@ -11,7 +11,7 @@ public class Greeting {
     private final String last_name;
     private final String application_name;
 
-    public Greeting(long id, String text, String intent, String full_name,String first_name,String last_name,String application_name) {
+    public NLPParser(long id, String text, String intent, String full_name,String first_name,String last_name,String application_name) {
         this.id = id;
         this.text = text;
         this.intent = intent;

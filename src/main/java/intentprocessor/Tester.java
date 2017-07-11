@@ -1,4 +1,4 @@
-package hello;
+package intentprocessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +26,10 @@ public class Tester {
     private String application_name="";
 
     @RequestMapping("/test")
-    public Greeting greeting(@RequestParam(value="text", defaultValue="World") String text) {
+    public NLPParser greeting(@RequestParam(value="text", defaultValue="World") String text) {
     	
     	parser(text);
-        return new Greeting(counter.incrementAndGet(),
+        return new NLPParser(counter.incrementAndGet(),
                             text, intent, full_name, first_name , last_name, application_name);
     }
     

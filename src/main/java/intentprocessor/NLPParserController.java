@@ -1,4 +1,4 @@
-package hello;
+package intentprocessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
 
 @RestController
-public class GreetingController {
+public class NLPParserController {
 
     //private static final String template = "Parse Tree: %s!";
     private final AtomicLong counter = new AtomicLong();
@@ -25,10 +25,10 @@ public class GreetingController {
     private String last_name;
     private String application_name;
 
-    @RequestMapping("/greeting")
-    public Greeting greeting(@RequestParam(value="text", defaultValue="call Saumya Dixit") String text) {
+    @RequestMapping("/process")
+    public NLPParser process(@RequestParam(value="text", defaultValue="call Saumya Dixit") String text) {
     	parser(text);
-        return new Greeting(counter.incrementAndGet(),
+        return new NLPParser(counter.incrementAndGet(),
                             text, intent, full_name, first_name , last_name, application_name);
     }
     
@@ -81,9 +81,7 @@ public class GreetingController {
         	full_name = last_name + ", "+first_name;
         	break;
         }
-        
-    	
-        
+
     }
     
     public String check_verbs(String text, LexicalizedParser lp, List<String> verbs)
@@ -119,7 +117,7 @@ public class GreetingController {
     	ArrayList<String> object= new ArrayList<String>();
     	
     	System.out.println("\nPrinting Proper Nouns .. !");
-    	String regex_pattern_noun = "(NNP > NP) | (NN > NP)";
+    	String regex_pattern_noun = "(NNP > NP) | (NN > NP) | (@JJ $, @RB & >> @VP)";
     	Tree parse_tree = lp.parse(text);
         System.out.println(text);
         System.out.println(parse_tree.toString());

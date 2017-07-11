@@ -80,6 +80,11 @@ public class NLPParserController {
         	last_name = object.get(object.size()-1);
         	full_name = last_name + ", "+first_name;
         	break;
+        case "":
+        	if(object.size()>0)
+	        	if(object.get(0).equals("time"))
+	        		intent="time";
+        	break;
         }
 
     }
@@ -90,7 +95,6 @@ public class NLPParserController {
     	System.out.println("\n\nPrinting Verbs .. !");
     	String regex_pattern_noun = "(@ADJP << @JJ & > @VP) | (@NP < @JJ) | (@VP < @VB) | (@VP < @VBP) | (@PRT << @RP & > @VP) | (@NP < @NN  & >> @VP) | (@NN $, @DT & >> @VP) ";
     	
-    	//String regex_pattern_noun = "(@ADJP << @JJ & > @VP)";
     	Tree parse_tree = lp.parse(text);
         System.out.println("Sentence : " +text);
         System.out.println(parse_tree.toString());
@@ -117,7 +121,7 @@ public class NLPParserController {
     	ArrayList<String> object= new ArrayList<String>();
     	
     	System.out.println("\nPrinting Proper Nouns .. !");
-    	String regex_pattern_noun = "(NNP > NP) | (NN > NP) | (@JJ $, @RB & >> @VP)";
+    	String regex_pattern_noun = "(NNP > NP) | (NN > NP) | (@JJ $, @RB & >> @VP) | (NN > NP-TMP) ";
     	Tree parse_tree = lp.parse(text);
         System.out.println(text);
         System.out.println(parse_tree.toString());

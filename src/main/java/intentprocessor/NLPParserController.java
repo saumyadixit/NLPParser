@@ -143,7 +143,7 @@ public class NLPParserController {
     	ArrayList<String> object= new ArrayList<String>();
     	
     	System.out.println("\nPrinting Proper Nouns .. !");
-    	String regex_pattern_noun = "(NNP > NP) | (NN > NP) | (@JJ $, @RB & >> @VP) | (NN > NP-TMP) ";
+    	String regex_pattern_noun = "(NNP > NP) | (NNS > NP) | (NN > NP) | (@JJ $, @RB & >> @VP) | (NN > NP-TMP) ";
     	Tree parse_tree = lp.parse(text);
         System.out.println(text);
         System.out.println(parse_tree.toString());
